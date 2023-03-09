@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+envs=('release' 'debug')
+
+if [[ ! " ${envs[*]} " =~ "$@" ]]; then
+  echo 'Invalid env!'
+  exit 1
+fi
+
+/home/domagoj/.platformio/penv/bin/pio run -t upload -e $@ && /home/domagoj/.platformio/penv/bin/pio device monitor 
