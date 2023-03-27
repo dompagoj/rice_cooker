@@ -40,8 +40,7 @@ void setup()
     UI::wifi_start();
     while (WiFi.status() != WL_CONNECTED)
     {
-        Serial.println(WiFi.status());
-        delay(1000);
+        delay(100);
     }
     UI::wifi_connected();
 

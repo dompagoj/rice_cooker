@@ -54,7 +54,7 @@ bool CustomHASwitch::read_ha_state()
     return getCurrentState();
 }
 
-CustomHASensor::CustomHASensor(char *id, Pin pin, const char *name, const char *icon) : HASensor(id), m_Pin(pin)
+CustomHASensor::CustomHASensor(const char *id, Pin pin, const char *name, const char *icon) : HASensor(id), m_Pin(pin)
 {
     setName(name);
     if (icon)

@@ -23,29 +23,29 @@ struct TextBounds
 TextBounds get_text_bounds(const String &str)
 {
     TextBounds bounds{};
-
     tft.getTextBounds(str, tft.getCursorX(), tft.getCursorY(), &bounds.x, &bounds.y, &bounds.w, &bounds.h);
 
     return bounds;
 }
 
-Vec2 get_x_centered(const String &str, i16 offset = 0)
+i16 get_x_centered(const String &str, i16 offset = 0)
 {
     u16 w, h = 0;
 
     static constexpr i16 middle = WIDTH / 2;
     static constexpr i16 xDest = 0;
-    i16 yDest = tft.getCursorY();
+    // i16 yDest = tft.getCursorY();
 
-    tft.getTextBounds(str, xDest, yDest, &bounds_x, &bounds_y, &w, &h);
-    return {middle - (w / 2) + offset, yDest};
+    tft.getTextBounds(str, xDest, 0, &bounds_x, &bounds_y, &w, &h);
+
+    return (middle - (w / 2)) + offset;
 }
 
 void print_aligned_center(const String &str, i16 x_offset = 0)
 {
     i16 x, y;
-    auto coords = get_x_centered(str, x_offset);
-    tft.setCursor(coords.x, coords.y);
+    auto x_center = get_x_centered(str, x_offset);
+    tft.setCursor(x_center, tft.getCursorY());
     tft.print(str);
 }
 
@@ -56,20 +56,19 @@ void print_aligned_left(const String &str)
 
 void print_aligned_right(const String &str)
 {
+    NOT_IMPL();
 }
 
 void print_to_center(const String &str, i16 y_offset = 0, i16 x_offset = 0)
 {
-    tft.setCursor(0, HEIGHT / 2);
-    auto coords = get_x_centered(str);
-
-    tft.setCursor(coords.x + x_offset, coords.y + y_offset);
+    auto x_coord = get_x_centered(str);
+    tft.setCursor(x_coord + x_offset, HEIGHT / 2 + y_offset);
     tft.print(str);
 }
 
-void next_line(u8 lines = 1)
+template <u8 Lines = 2> void next_line()
 {
-    for (int i = 0; i < lines; i++)
+    for (u8 i = 0; i < Lines; i++)
         tft.println();
 }
 
@@ -82,32 +81,40 @@ void refresh_if_changed(bool changed, const String &str)
     }
 }
 
-void draw_timer()
-{
-}
-
 void UI::draw(const AppState &state)
 {
-    tft.setCursor(0, HEIGHT / 4);
-    print_aligned_center("Power: ", -10);
-    auto circleXCord = tft.getCursorX() + 5;
-    tft.fillCircle(circleXCord, tft.getCursorY() + 5, 15, state.m_power.state ? Color::Green : Color::Red);
+    if (state.m_is_display_off)
+    {
+        clear();
+        delay(20);
+        return;
+    }
+    auto x_center = get_x_centered("00:00");
+    tft.setCursor(x_center - 25, HEIGHT / 4);
+    tft.setTextSize(4);
+    refresh_if_changed(state.m_cooker.has_changed(), "00:00");
+    tft.print(state.m_cooker.get_str());
+    tft.setTextSize(2);
 
-    next_line(2);
+    next_line<3>();
+
+    print_aligned_center("Warm: ", -10);
+    auto circleXCord = tft.getCursorX() + 5;
+    tft.fillCircle(circleXCord, tft.getCursorY() + 5, 15, state.m_keep_warm.state ? Color::Green : Color::Red);
+
+    next_line();
 
     print_aligned_center("Heat:  ", -10);
-    tft.fillCircle(circleXCord, tft.getCursorY() + 5, 15, state.m_heat.state ? Color::Green : Color::Red);
+    tft.fillCircle(circleXCord, tft.getCursorY() + 5, 15, state.m_cooker.m_heat.state ? Color::Green : Color::Red);
 
-    next_line(2);
+    next_line<3>();
 
-    print_aligned_center("Sensor: ", -10);
-    refresh_if_changed(state.m_turnoff_sensor.is_changed, "OFF");
+    print_aligned_center("Overheat: ", -10);
+    refresh_if_changed(state.m_turnoff_sensor.is_changed, "Yes");
     if (state.m_turnoff_sensor.state)
-        tft.print("ON");
+        tft.print("Yes");
     else
-        tft.print("OFF");
-
-    tft.println();
+        tft.print("No");
 }
 
 void UI::clear()
@@ -119,7 +126,7 @@ void UI::init()
 {
     tft.init(HEIGHT, WIDTH, SPI_MODE2);
     clear();
-    tft.setRotation(1);
+    tft.setRotation(2);
 }
 
 void UI::wifi_start()
@@ -135,7 +142,7 @@ void UI::wifi_start()
 void UI::wifi_connected()
 {
     clear();
-    DEBUG(return;)
+    IF_DEBUG(return;)
 
     auto ip = WiFi.localIP();
     tft.setCursor(WIDTH / 2, HEIGHT / 2);

@@ -21,12 +21,11 @@ struct CustomHASwitch : private HASwitch
 
 struct CustomHASensor : public HASensor
 {
-    Pin m_Pin;
-    bool m_State;
-
+    CustomHASensor(const char *id, Pin pin, const char *name, const char *icon = nullptr);
     void (*m_ChangeCb)(bool state, CustomHASensor *sensor);
 
-    CustomHASensor(char *id, Pin pin, const char *name, const char *icon = nullptr);
+    Pin m_Pin;
+    bool m_State;
 
     bool read_state();
     bool update_state();

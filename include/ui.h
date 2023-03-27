@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Color.h"
+#include "app_state.h"
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
-#include "Color.h"
-#include "app_state.h"
 
 #define HEIGHT 240
 #define WIDTH 240
@@ -24,9 +24,9 @@ enum class TextAlign
 
 namespace UI
 {
-    void init();
-    void clear();
-    void draw(const AppState &state);
-    void wifi_start();
-    void wifi_connected();
-}
+void init();
+void clear();
+void draw(const AppState &state);
+void wifi_start();
+void wifi_connected();
+} // namespace UI

@@ -1,11 +1,13 @@
-#ifdef RELEASE
-#define RELEASE(x) x
+#pragma once
+
+#ifdef IF_RELEASE
+#define IF_RELEASE(x) x
 #else
-#define RELEASE(x)
+#define IF_RELEASE(x)
 #endif
 
-#ifdef DEBUG
-#define DEBUG(x) x
+#ifdef IF_DEBUG
+#define IF_DEBUG(x) x
 #else
-#define DEBUG(x)
+#define IF_DEBUG(x)
 #endif
